@@ -1,0 +1,171 @@
+---
+title: "Simulation_project1_report"
+author: "KIM EUN SEO"
+output:
+  rmdformats::readthedown:
+    self_contained: true
+    thumbnails: true
+    lightbox: true
+    gallery: false
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{=html}
+<style>
+
+.figure{
+margin:auto;
+}
+
+.pages .page img.image-thumb {
+max-width: 100%;
+}
+</style>
+```
+# Simulation Report
+한양대학교 산업공학과
+
+김은서, 부강민, 이현희, 이해준
+
+**Subject**: 직원배치문제
+
+**Objective:** 제안된 직원의 시간별 배치가 현재의 배치보다 더 효율적인지 검증 및 결정  
+
+## Executive Summary  
+
+밸런스버거(PBB)의 시간별 직원배치가 소비자에게 효율적인지 판단하였다. 제안된 모델이 Table을 이용하지 않고 포장해 나가는 사람의 증가에도 불구하고 Order/Pay의 대기 시간, Flow time의 유의미한 감소 등의 효율성 증가를 보여 기존의 모델보다 개선되었음을 확인하였다. 이에 제안된 모델을 적용하는 것이 합리적이다. 
+
+## Experiment Design and Analysis
+
+### a. Experiment Design
+
+1) 초기 조건  
+- Walk Input rate: Exponential(Number of Walk-in Customer/4) Distribution  
+- Car Input rate: Exponential(Number of Cars/4) Distribution (차 한 대에 있을 사람 수의 확률은 0.1: 1명, 0.2: 2명, 0.3: 3명, 0.4: 4명의 Batch로 도착한다.)  
+- Bus Input time: 11:45 + Uniform(0, 15) Distribution (Minutes)으로 11:45~12:00에 반드시 한 대 도착한다.  
+- Number of Bus Customers: Triangular(0,30,60) Distribution.   
+- Order/Pay Service Time Distribution: Gamma(35, 0.123) Distribution    
+- PickUp Service Time Distribution: Weibull(3.11, 1.38) Distribution  
+- Eating Time Distribution: Weibull(5.54, 21.1) Distribution  
+  
+Service Time의 초기 조건을 뒷받침하는 Stat::fit 사진은 Appendix에 첨부하였다.  
+
+1) Run length: 요일 별로 오전 10시 부터 오후 2시 이전에 도착한 손님이 매장을 나갈 때까지  
+1) 실행횟수: 300   
+
+### b. Result  
+
+Appendix의 Experiment Result 표 참조  
+
+### c. Analysis  
+
+시스템의 관점에서, Flow time은 고객이 식당에 온 시점부터 식사를 다 마치고 나가거나, 아니면 테이블이 꽉 차 포장(Pick up)만 해서 식당을 빠져나가게 되는 시점까지의 시간이다. 고객이 식사를 하는 Table에서의 process time을 제외하고는, 서비스하는 입장에서 Order/Pay Queue Time (Order/Pay의 대기 시간), Pick up Queue Time (Pick up의 대기 시간)이 고객 만족도에 가장 중요한 요소라고 판단된다.  
+
+이러한 요소들을 현재 직원 배치와, 제안된 직원 배치에서의 각 값들을 비교해보면, Pickup Queue Time은 최대 0.6분 정도로 약간 증가하였으나, Order/Pay의 Queue Time은 월요일부터 금요일까지 모두 평균적으로 38% 감소하였다. 이는 평균 6.16분으로 전체 Flow time이 평균 41.4분에서 33.3분으로 8.1분 감소한 것을 고려하면 Flow Time의 감소에 Order/Pay에서의 대기 시간 감소가 가장 큰 영향을 주었음을 확인할 수 있다.   
+  
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.001.png){width="50%"}
+
+**<표: 요일별 차이와 변화율, 그리고 각각의 평균을 나타낸 표>**
+
+앞서 언급했듯이 전체적인 Flow Time은 최소 5.31분(월요일, 14.2%)에서 최대 12.95분(목요일, 26.8%), 평균적으로는 8.75분(19.8%) 감소하였다. 다만, Table이 꽉 차서 포장하는 비율은 기존 2.6%에서 15.4%로 평균 12.8%p 상승하였다. 특히, 고객들이 식사를 할 때 보내는 시간(Table에서의 Process Time)이 평균 19.48분으로 전체 Flow time인 33.3분에서 가장 큰 부분을 차지한다는 점을 고려해보았을 때, 과연 전체 Flow time의 감소가 단순히 매장에서 식사를 하지 않고 빠져나가는 인원의 증가로 인한 것이 아닌지 수치적인 확인이 필요하다. 물론, Table뿐만아니라 Order/pay, Table 모두 Process Time은 변화가 없고 차이를 비교하는 것이 무의미하지만, Process Time의 변화가 실제로 없는지 확인하고 Sink Exit 비율의 증가가 Flow time에 어느 정도 영향을 미쳤는지 확인하고자 위의 표에 첨부하였다. 
+
+Table이 꽉 차서 포장해서 나가는 비율이 평균 2.6%에서 15.4%로 12.8%p 증가하였다. 즉, 식당에서 식사까지 마치고 나가는 비율은 현재 97.4%, 제안된 직원 배치 상황에서 84.6%이다. 또 Table Service Time의 평균은 19.5분이다. Table Service Time을 제외한 Flow Time의 남은 시간을 현재와 제안된 배치에서 각각 RTcurrent, RTproposed라고 할 때, Sink Exit이 어느 정도 영향을 끼쳤는지 알아보자. (RTcurrent+19.5)\*0.974 + RTcurrent\*0.026 = 41.4,(RTproposed+19.5)\*0.846 + RTproposed\*0.154 = 33.3 
+
+각각의 방정식을 풀면, RTcurrent=22.407,  RTproposed=16.803이라는 값을 얻을 수 있다. 또한, Flow Time에 Sink Exit을 통해 나간 사람이 영향을 주는 정도라고 볼 수 있는, 모든 고객들이 받는 RTcurrent와  RTproposed를 뺀 부분인 19.5\*0.974 와 19.5\*0.846 을 살펴보면, 각각 19.0(분)과 16.5(분)임을 알 수 있다. 즉, Sink Exit을 통해 발생한 Flow time의 감소를 19.0-16.5=2.5(분)으로 볼 수 있는 것이다. 이는 전체 Flow time의 감소인 41.4-33.3=8.1(분) 중에서 30.9%정도를 차지한다. Flow time의 감소 중 2.5분이 Sink Exit으로 나가는 고객 수의 증가로 인해 발생했지만, 전체 Flow time 감소의 69.1%인 5.6분이 유의미하게 감소했다. 이러한 부분에 있어 고객 만족도 상의 문제가 있다면 Trade-off를 고려해야하겠지만, 본 연구팀은 전체적인 Flow time의 감소에 있어서 제안된 직원 배치가 충분히 유의미했다고 판단하였다.  
+
+이렇듯 제안된 배치는 직원의 총 cost는 같게 유지하면서 배치만의 변화로 유의미한 Flow time의 감소를 이끌어 냈음을 확인할 수 있었다. 즉 이 시스템에서는 Bus 고객들의 도착시간인 11:45~12:00의 picktime에 대한 인력에 집중하는것이 다른 시간의 인력 감소를 감수하면서도 좋은 결과를 낸다는 것을 확인할 수 있다. 이에 제안된 직원 배치가 효율적이라고 판단한다.   
+
+### d. 제안된 모델과 현재 직원 배치 이외에 개선할 수 있을 것으로 판단되는 부분  
+
+Table의 Utilization은 현행과 제안된 모델 둘다 96%를 넘어가는 높은 수치를 보이고 있다. PBB는 추가로 테이블을 배치하는 것과 Table에서 식사를 하지 못하는 손님의 만족도 하락 사이에 비용을 비교해서 더 저렴한 쪽을 선택해야 할 것이다. 
+
+제안된 직원 배치를 적용함에 따라 Pick up Queue의 Max Length의 평균은 2~3배, Mean Length의 평균은 20~30배 가까이 증가했다. 물론 전체적인 System으로 봤을 때는 크지 않은 수치이지만, 이에 대한 개선이 따르면 좋을 것으로 제안한다. 따라서, 조리 시간을 줄이기 위한 노력이 필요해 보인다. 신선도에 크게 영향을 받지 않는 음식을 미리 조리하는 등의 개선이 필요하다.
+
+## Verification  
+
+### a. Rough cut Model  
+
+(1). Rough Cut model setting: M/M/C Model 
+
+- Input rate: Order/pay processing time rate: 4.31(min), 
+- PickUp processing time rate: 1.23(min), Table processing time rate: 19.5(min), 
+- timepath processing time rate: 30(sec) (다른 조건은 동일하게 설정)  
+
+(2) Assumption: 
+
+\- Time Path를 구현하기 위해 이를 처리하는 시간이 지수분포로 평균 30초가 걸리는 M/M/C 모델로 가정하였고, Server의 개수가 무한한 Time Path의 특징을 반영하기 위해 C를 150과 같은 큰 수로 설정하였다. 
+
+\- 나머지 설정은 기본적으로 문제에서 주어진 월요일의 상황을 반영하였다. 다만, 두 개의 독립적인 homogeneous poisson process인 자동차의 arrival과 걸어오는 것의 arrival은 하나로 합치고, 이 때 자동차의 Arrival은 한 번 올 때 3명(0.1\*1+0.2\*2+0.3\*3+0.4\*4=3)씩 온다고 가정하여 기존 자동차의 Arrival rate에 3을 곱해서 더해주었다. 이러한 가정을 통해 얻어진 Input rate는 4.31명/분이다.
+
+\- Order/pay, Pick up, Table에서의 service rate은 모두 rough cut model 적용을 위해 지수 분포로 가정하였고, Stat-fit 프로그램을 활용해서 모수를 추정하였다. 이에 대한 근거는 Appendix에 이미지로 첨부하였다.
+
+(3) Result  
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.002.png){width="75%"}
+
+### b. Approximation Model  
+
+(1)Approximation model setting: M/M/C Model  
+
+- Car input rate: 5.71(min), Walk input rate: 3(min), Order/pay processing time rate: 4.31(min),   
+- PickUp processing time rate: 1.23(min), Table processing time rate: 19.5(min),   
+- timepath processing time rate: 30(sec) (다른 조건은 동일하게 설정)  
+- 실행횟수:300 (warm up period: 50) 
+
+(2) Result  
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.003.png){width="70%"}
+
+<표> Approximation 시뮬레이션 모델 결과
+
+c. Comparison
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.004.png){width="50%"}
+
+<표>Rough cut과 Approximation 모델 결과 비교
+
+결과를 살펴보면, Pick Up이나 Table에서 Utilization, Number in Queue, Time in Server, Waiting in Queue, Number in Queue 모두 결과값보다 조금 높지만 상당히 비슷함을 확인할 수 있었다. 그러나 Order/Pay Server의 경우에는, Rough Cut으로 계산하여 나온 결과보다 Simulation을 통해 나온 결과가 부하가 크고 상대적으로 이 정도 또한 크다는 것을 확인할 수 있다. 이는 자동차를 통해 오는 손님들이 시뮬레이션에서는 1명, 2명, 3명, 4명으로 배치 형태로 확률적으로 오지만 Rough Cut에서는 같은 도착률로 이러한 손님들이 일정한 시간 간격을 두고 온다고 가정하였다. 때문에, 손님이 3명, 4명씩 Batch로 올 경우 시간 간격을 두고 오는 것보다 부하가 크게 작용하고, 이는 Utilization이나 서버에서 대기하는 시간 등의 상승으로 이어진다. 하지만, Order/Pay 서버에서 서비스를 받고 나가면서, 이러한 순간적인 부하가 어느 정도 해소되기 때문에 Pick up과 Table에서의 결과값들이 예측한 값들보다 높기는 하지만, 상대적으로 적게 차이가 남을 확인할 수 있다. 이렇게 모델이 수식과 잘 일치하며 적용되고 있는 것을 확인함을 통해 시뮬레이션이 잘 작동함을 검증할 수 있었다.
+
+
+## [Appendix]
+### 실험 결과
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.005.png){width="50%"}  
+**[Experiment Result]**
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.006.png){width="50%"}
+
+**[StatFit: Order/Pay data Q-Q Plot]**
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.007.png){width="50%"}
+
+**[StatFit::PickUp data Q-Q Plot]**
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.008.png){width="50%"}
+
+**[StatFit::Table data Q-Q Plot]**  
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.009.png){width="50%"}
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.010.png){width="50%"} 
+
+**[StatFit::Order/Pay data Autofit Distribution]**  
+
+
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.011.png){width="50%"}
+
+**[StatFit::PickUp data Autofit Distribution]**
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.012.png){width="50%"}
+
+**[StatFit::Table data Autofit Distribution]**  
+
+### [시뮬레이션 결과 사진]  
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.013.png){width="100%"}
+
+![](Aspose.Words.e2e4271a-4a63-4597-8d73-a2add2c3af60.014.png){width="100%"}

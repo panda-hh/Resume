@@ -1,0 +1,102 @@
+﻿# Simulation Report 2
+한양대학교 산업공학과
+
+김은서, 부강민, 이현희, 이해준
+
+**Subject**: 콜센터 직원 배치
+
+**Objective:** 고객의 편의와 직원의 업무 만족을 위해 Cross-trained된 직원을 활용한 시스템으로 변경하는 것이 적절한지 여부 판단
+## Executive Summary
+현재 콜센터와 같은 수준의 서비스를 제공하기 위해 몇 명의 Cross-trained된 직원이 필요한지 확인하였다. 비교를 위해 현재 배치와 제안된 배치에 대해 Server 앞에서의 대기 시간, 대기하고 있는 Call의 수, Flow time, Renege를 통해 서비스를 떠나는 Call의 수, 오후 6시 이후에 남아있는 Call의 수, 등의 Performance measures를 정의한 후 서비스 수준을 비교하였다. 현재 시스템은 financial, personal productivity, e-mailers 총 세 분야로 구성되어 있고 각각 배정된 직원 수는 2, 2, 3명으로 7명이다. 이를 Cross-trained된 직원으로 바꾸어 배치하는 제안된 배치에서, 직원의 수가 6명이 되면 모든 서비스 수준이 현재보다 나은 수준을 유지하면서 직원의 수를 줄일 수 있었다. 다만, 직원의 수가 5명이 되면 서비스 수준이 현재 이하로 감소하였기 때문에 가장 적절한 직원의 수를 6명으로 제안하였다.
+
+## Verification
+### a. Rough cut Model
+(1) Rough Cut model setting: M/M/C Model System
+
+\- Input rate: Exp(1(min))
+
+\- Operators’ processing time: Exp(5.5(min)), Time to choose processing time: Exp(0.3(min)), Technical Group processing time: Exp(30(min))
+
+(2) Assumption: 
+
+\- 원래 상황과 유사하게 하기 위해서 평균 5.5분의 Triangular 분포를 가지는 Operator의 processing time은 같은 평균인 5.5분의 지수분포로 가정하였고, 평균 0.3의 Uniform 분포를 가지는 Time to choose product line의 process time은 평균 0.3의 지수분포를 가정하였다.
+
+\- 전화가 오는 Arrival rate와 Technical Group processing time은 문제 상황과 동일한 지수분포를 가정하였다.
+
+구체적인 R-C 모델은 Appendix에 상세하게 결과와 함께 첨부하였다.
+
+(3) Result: 
+
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.001.png)
+
+결과를 살펴보면, 현재 Financial, Productivity, E-mail 3개의 분할된 서버로 7명의 Operator가 (2명,2명,3명) 구성되어 있는 시스템 같은 경우에는 시스템 내에 있는 calls의 수가 약 47.8개, 평균 Flow time이 약 47.8분이다. 하지만, Cross-trained된 모델의 경우에는 같은 수의 Operators가 있을 때 시스템 내의 calls 수가 10개로 대폭 줄고, Flow time 또한 10.5분으로 크게 감소한다. Operator의 Call 수를 6명으로 줄였을 때도, 기존 시스템에 비해 L과 w가 줄어드는 것을 확인해 볼 수 있었다. 이를 통해 제안된 모델로 바꿀 시에 Operator의 수를 줄이는 제안이 가능하고, 합리적이라고 예상해 볼 수 있다. C=5이하로 줄어들면 시스템이 폭발하게 되어 결과를 생략했다. Appendix를 통해 R-C 모델의 이해를 돕기 위한 그림을 첨부하였다.
+
+## Experiment Design and Analysis
+### a. Experiment Design
+1) **Run length: 오전 8시부터 오후 6시까지 오후5시까지 걸려온 전화를 서비스** 
+1) **실행횟수**
+
+`  `모든 server에 대해서 half-width를 0.5보다 작게 하는 실행횟수를 구하기 위한 과정은 다음과 같았다. Current 모델에 대해서 최초 시뮬레이션 횟수(R)를 2회로 지정하였을 때, Email, Financial, Productivity 세 Server에 대해서 hold time의 half-width를 확인했다. 이 때, half-width가 가장 컸던 것은 Email Server였고, 평균(Z)은 0.9311이고, 표준편차(s)는 0.3147,  t0.025,1는 12.706으로 half-width가 2.8271이었다. R을 미지수로 두고 12.706×0.3147R<0.5 식을 풀면,  R>63.95로 R보다 큰 가장 가까운 정수는 64이다. 따라서 시행 횟수 R을 64으로 두고 Experiment를 진행하였다. 결과를 확인해보면, 세 서버에서 모두 half-width가 0.5 이하였다.
+
+`  `제안된 상황에 대해서도 실행횟수를 결정하기 위해 cross-trained 모델을 제작하고, Experiment를 통해 c=1부터 c=10까지의 최초 시뮬레이션 횟수(R)를 3회로 지정해 cross-trained server의 hold time의 결과값을 산출하였고 c=2일 때 hold time의 half-width가 가장 컸다. 이 때, 평균(Z)은 7.3916이고, 표준편차(s)는 0.5492, t0.025, 2는 4.303으로 half-width가 1.3644였다. 이를 수식에 다시 적용하여 R을 구하는 과정은 다음과 같다. 4.303×0.5492R<0.5, 이 수식을 풀면, R>22.34로 R보다 큰 가장 가까운 정수는 23이다. 따라서 제안된 상황에 대해서는 편의상 모든 시나리오에 대해 시행 횟수 R을 23으로 두고 Experiment를 진행하였다. 이렇게 진행하였을 때, operator의 수가 1부터 10까지 모든 경우에서 half-width가 0.5보다 작았다. 
+
+### b. Result
+1) **Current System의 Performance**
+
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.002.png)
+
+`  `현재 Current system의 performance를 나타낸 표이다. 각 Server에 대해서 평균 대기 인원 수, 평균 대기 시간, 평균 Utilization, 6시 이후에 남아 있는 Call 수, Tech 그룹에 간 Call의 수, Renege를 통해 시스템을 떠난 Call의 수, 정상적으로 서비스를 받고 떠난 Call의 수, 그리고 Renege 된 Call의 Flow time, 정상적으로 서비스를 받고 떠난 Call의 Flow time을 performance measurements로 정의하였고, 95% 신뢰구간과 함께 표로 정리하였다. Renege된 call의 수의 범위와 6시 이후에 남아있는 call의 수의 범위를 히스토그램으로 아래에 나타내었다.
+
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.003.png)
+
+1) **Proposed System의 Performance**
+
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.004.png)
+
+`  `현재 Operator의 수가 4명 이하인 경우 Current System에 비해 서비스 수준이 많이 떨어지기 때문에 [c=5,6,7]의 경우만 고려하였다. Cross-Trained Server의 utilization, 평균 대기 인원, 평균 대기 시간, Tech Group으로 들어간 Call의 수, 6시 이후에 남아있는 Call의 수, Renege를 통해 시스템을 빠져나간 Call의 수, 정상적으로 서비스를 받고 서비스를 빠져나간 Call의 수, 각각 Call에 대한 Flow Time을 95% 신뢰구간과 함께 표로 첨부하였다.
+
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.005.png)
+
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.006.png)
+
+`  `각각에서 Renege된 call의 수의 범위와 6시 이후에 남아있는 call의 수의 범위를 히스토그램으로 나타내었다. c가 증가할수록 Renege된 call의 수는 감소하는 경향을 보였고, 6시 이후 남아 있는 call의 수는 전체적으로 비슷했다.
+
+
+### c. Analysis
+이제 Current System과 Proposed System에서의 서비스 수준을 비교해보자.
+
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.007.png)
+
+`  `Current System은 Email, Productivity, Financial 3개의 서버를 기준으로 Average Waiting Number와 Average Waiting Time을 구했다. 결과를 살펴보면, 기존과 같은 수의 operator(c=7)를 가질 때 cross-trained의 대기 시간, 시스템에 대기하는 Call의 수, 6시 이후에 있는 call의 수, Renege된 Call의 수, 정상적으로 서비스를 받고 나간 Call들의 Flow time, Renege를 통해 서비스를 빠져 나간 Flow time 모두 기존 시스템보다 좋은 성능을 보임을 확인할 수 있다. 반면 5명의 operator(c=5)를 가질 때는, 대기 시간과 대기 명 수, 6시 이후에 남아있는 Call의 수, Renege를 통해 빠져나가는 Call의 수, Flow time이 모두 서비스 수준이 현재 시스템보다 나빠진 것을 확인할 수 있다. 
+
+`  `가장 적절한 것은, 제안된 모델에서 c=6으로 이는 기존 시스템보다 평균 대기 시간, 평균 대기 인원 수, 6시 이후에 남아 있는 Call의 수, Renege된 Call의 수, Flow Time의 모든 부분에서 Current System보다 수준이 더 나아졌다. 그러므로, **제안된 모델에서 Operator를 6명을 두는 것이, 현재 시스템 수준보다 좋은 수준을 유지하면서 Operator를 최대로 줄일 수 있는 가장 합리적인 결정이다.** 추가적으로, 고객이 (1분+평균 10을 가지는 지수분포)의 시간 만큼 기다린 후 Renege가 이루어지기 때문에 5시에 서비스가 종료되면 대부분 6시까지 1시간 동안 call이 서비스를 다 받아 완료하든, 혹은 Renege를 통해든 대체적으로 시스템을 떠나게 된다. 그렇기 때문에 현재와 cross-trained 모델 전부에서 6pm에 남아 있는 Call의 수는 항상 5개보다 적었다. 또한  6시 이후에 남아 있는 Call의 수의 평균을 비교하면 c=5를 제외한 c=1~7까지 모든 경우에서 기존 시스템보다 낮다.
+
+
+## [Appendix]
+### a) Rough-cut Model
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.008.png)
+
+**<현재 Rough cut M/M/C 모델>**
+
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.009.png)
+
+**<제안된 Rough cut M/M/C 모델(C=7)>**
+
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.010.png)
+
+**<제안된 Rough cut M/M/C 모델(C=6)>**
+
+
+### b) 시뮬레이션 사진
+![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.011.png)![](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.012.png)
+
+**[Current System Simulation 사진]**
+**
+
+
+![지도이(가) 표시된 사진
+
+자동 생성된 설명](Aspose.Words.88865e7e-4212-43ad-9fe3-7808260e50ab.013.png)
+
+**[Proposed System Simulation]**
+1
